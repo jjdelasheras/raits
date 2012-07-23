@@ -5,7 +5,7 @@
 #include <QVector>
 #include <poppler/qt4/poppler-qt4.h>
 #include <QImage>
-#include <QScrollArea>
+#include <QVBoxLayout>
 
 class QString;
 class QLabel;
@@ -16,17 +16,13 @@ class Pdf : public QWidget
 private:
     QString filename;
     Poppler::Document* document;
-    struct Images   {
-        QVector<QLabel *> images;
-        QVector<QScrollArea*> scroll;
-    } pages;
+    QVector<QLabel *> images;
+    QVBoxLayout* layout;
+
 public:
     explicit Pdf(QWidget *parent = 0);
     void open(const QString& _filename);
     void load();
-    void visualize();
-    void close();
-    
 };
 
 #endif // PDF_H

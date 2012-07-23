@@ -6,9 +6,7 @@
 #include <QScrollArea>
 #include <QString>
 
-
-
-class Viewer : public QWidget
+class ImageViewer : public QWidget
 {
     Q_OBJECT
 private:
@@ -20,7 +18,7 @@ private:
     void adjustScrollBar(QScrollBar* scrollBar, double factor);
 
 public:
-    explicit Viewer(QWidget *parent = 0);
+    explicit ImageViewer(QWidget *parent = 0);
     void open(const QString& fileName);
     void zoomIn();
     void zoomOut();

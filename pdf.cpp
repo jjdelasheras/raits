@@ -2,7 +2,7 @@
 #include <QString>
 #include <QImage>
 #include <QDebug>
-#include <QGridLayout>
+#include <QSizePolicy>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QPixmap>
@@ -11,6 +11,8 @@ Pdf::Pdf(QWidget *parent) :
     QWidget(parent)
 {
     document = 0;
+    layout = new QVBoxLayout(this);
+    setLayout(layout);
 }
 
 void Pdf::open(const QString& _filename)
@@ -37,22 +39,10 @@ void Pdf::load()
             qDebug("Error: No se puede renderizar la página.");
             return;
         }
-        pages.images.push_back(new QLabel());
-        pages.scroll.push_back(new QScrollArea());
-
-        pages.images[nPage]->setPixmap(QPixmap::fromImage(image));
-        pages.scroll[nPage]->setWidget(pages.images[nPage]);
+        images.push_back(new QLabel());
+//        images[nPage]->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+        images[nPage]->setPixmap(QPixmap::fromImage(image));
+        layout->addWidget(images[nPage]);
     }
     delete pdfPage;
 }
-
-void Pdf::visualize()
-{
-    QVBoxLayout* layout = new QVBoxLayout(this);
-    for(int i = 0;i < 5;++i)
-        layout->addWidget(pages.scroll[i]);
-    setLayout(layout);
-
-}
-
-void Pdf::close(){}

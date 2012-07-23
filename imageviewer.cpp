@@ -1,4 +1,4 @@
-#include "viewer.h"
+#include "imageviewer.h"
 #include <QPalette>
 #include <QImage>
 #include <QPixmap>
@@ -7,7 +7,7 @@
 #include <QGridLayout>
 #include "auxfunctions.h"
 
-Viewer::Viewer(QWidget *parent) :
+ImageViewer::ImageViewer(QWidget *parent) :
     QWidget(parent)
 {
     QGridLayout* layout = new QGridLayout(this);
@@ -24,7 +24,7 @@ Viewer::Viewer(QWidget *parent) :
 }
 
 // *********************************************************************************
-void Viewer::scaleImage(double factor)
+void ImageViewer::scaleImage(double factor)
 {
     Q_ASSERT(imageLabel->pixmap());
     scaleFactor *= factor;
@@ -35,13 +35,13 @@ void Viewer::scaleImage(double factor)
 }
 
 // *********************************************************************************
-void Viewer::adjustScrollBar(QScrollBar *scrollBar, double factor)
+void ImageViewer::adjustScrollBar(QScrollBar *scrollBar, double factor)
 {
     scrollBar->setValue(int(factor * scrollBar->value() + ((factor - 1) * scrollBar->pageStep()/2)));
 }
 
 // *********************************************************************************
-void Viewer::open(const QString& filename)
+void ImageViewer::open(const QString& filename)
 {
     QImage image(filename);
     if(image.isNull())  {
@@ -55,19 +55,19 @@ void Viewer::open(const QString& filename)
 }
 
 // *********************************************************************************
-void Viewer::zoomIn()
+void ImageViewer::zoomIn()
 {
     scaleImage(1.25);
 }
 
 // *********************************************************************************
-void Viewer::zoomOut()
+void ImageViewer::zoomOut()
 {
     scaleImage(0.8);
 }
 
 // *********************************************************************************
-void Viewer::normalSize()
+void ImageViewer::normalSize()
 {
     imageLabel->adjustSize();
     scaleFactor = 1.0;
