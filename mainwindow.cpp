@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 #include <QTextCodec>
 #include <QScrollArea>
+#include <QDebug>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -10,13 +11,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QTextCodec::setCodecForTr(linuxCodec);
     QTextCodec::setCodecForCStrings(linuxCodec);
     QTextCodec::setCodecForLocale(linuxCodec);
-    resize(600, 600); // <-- a modificar en el futuro para permitir opciones
+    resize(800, 500); // <-- a modificar en el futuro para permitir opciones
 
-    QScrollArea* scroll = new QScrollArea(this);
-    pdf = new Pdf(this);
-    pdf->open(tr("/home/jjdelasheras/Descargas/bash.pdf"));
-    pdf->load();
- //   pdf->visualize();
-    scroll->setWidget(pdf);
-    setCentralWidget(scroll);
+    pdf = new PdfViewer(this);
+    pdf->load(tr("/home/jjdelasheras/Descargas/bash.pdf"));
+    setCentralWidget(pdf);
 }

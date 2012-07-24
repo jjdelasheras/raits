@@ -2,13 +2,15 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "pdf.h"
+#include "pdfviewer.h"
+#include "imageviewer.h"
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 private:
-    Pdf* pdf;
+    PdfViewer* pdf;
+//    ImageViewer* image;
 public:
     explicit MainWindow(QWidget *parent = 0);
     

@@ -40,7 +40,6 @@ void Pdf::load()
             return;
         }
         images.push_back(new QLabel());
-//        images[nPage]->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
         images[nPage]->setPixmap(QPixmap::fromImage(image));
         layout->addWidget(images[nPage]);
     }
