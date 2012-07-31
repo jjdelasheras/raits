@@ -9,6 +9,7 @@
 #include <QVBoxLayout>
 
 class QLabel;
+class QSize;
 
 class Pdf : public QWidget
 {
@@ -16,8 +17,9 @@ class Pdf : public QWidget
 private:
     Poppler::Document* m_document;
     QVector<QLabel*> m_pdf;
+    QVBoxLayout* m_layout;
     int m_currentPage;
-    QVBoxLayout* layout;
+    QSize m_parentSize;
 
     void renderPage(int _nPage);
 

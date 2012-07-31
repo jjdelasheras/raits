@@ -11,8 +11,9 @@ Pdf::Pdf(QWidget *parent) :
     QWidget(parent)
 {
     m_document = 0;
-    layout = new QVBoxLayout(this);
-    setLayout(layout);
+    m_layout = new QVBoxLayout(this);
+    m_parentSize = parent->size();
+    setLayout(m_layout);
 }
 
 // ********************************************************************
@@ -26,10 +27,10 @@ void Pdf::renderPage(int _nPage)
         qDebug("No puede renderizarse la página ya que no se ha abierto ningún archivo");
         return;
     }
-    QImage image = m_document->page(_nPage)->renderToImage((pv->physicalDpiX() * 0.965) * sf, pv->physicalDpiY() * sf);
+    QImage image = m_document->page(_nPage)->renderToImage(pv->physicalDpiX() * sf, pv->physicalDpiY() * sf);
+
     m_pdf[_nPage]->setPixmap(QPixmap::fromImage(image));
     m_pdf[_nPage]->setAlignment(Qt::AlignCenter);
-    m_pdf[_nPage]->resize(pv->size());
 }
 
 // ********************************************************************
@@ -42,6 +43,7 @@ Poppler::Document* Pdf::getDocument() const
 bool Pdf::open(const QString& _filename)
 {
     m_document = Poppler::Document::load(_filename);
+    m_document->setRenderHint(Poppler::Document::TextAntialiasing);
 
     if(m_document == 0) {
         qDebug() <<tr("No se ha podido cargar el archivo: ") <<tail(_filename);
@@ -60,7 +62,9 @@ void Pdf::load()
 {
     for(int i = 0; i < m_document->numPages(); ++i) {
         renderPage(i);
-        layout->addWidget(m_pdf[i]);
+        m_pdf[i]->resize(m_parentSize);
+        m_pdf[i]->setScaledContents(true);
+        m_layout->addWidget(m_pdf[i]);
     }
 }
 
