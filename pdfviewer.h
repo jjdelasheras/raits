@@ -1,27 +1,42 @@
 #ifndef PDFVIEWER_H
 #define PDFVIEWER_H
 
-#include <QWidget>
-#include <QGridLayout>
 #include <QScrollArea>
-#include "pdf.h"
 
-class PdfViewer : public QWidget
+class Pdf;
+class QString;
+class QScrollBar;
+
+class PdfViewer : public QScrollArea
 {
     Q_OBJECT
 private:
-    Pdf* pdf;
-    QScrollArea* scroll;
-    QGridLayout* layout;
+    Pdf* m_pdf;
+    QString m_filename;
+    float m_scaleFactor;
+    int m_currentPage;
+    int m_numPages;
+
+    void adjustScrollBar(QScrollBar* _scrollBar, float _factor);
 
 public:
     explicit PdfViewer(QWidget *parent = 0);
-    void load(const QString& filename);
-    
-signals:
-    
+    bool open(const QString& _filename);
+    int numPages();
+    int getCurrentPage();
+    float getScaleFactor();
+    Pdf* getPdf() const;
+    const QString getFilename();
+    void setFilename(const QString& _filename);
+    void zoomIn();
+    void zoomOut();
+    void scalePdf(float _factor);
+    void setCurrentPage(int _nPage);
+    void selectText();
+
 public slots:
-    
+    void fitPageWidth();
+
 };
 
 #endif // PDFVIEWER_H

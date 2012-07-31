@@ -10,7 +10,6 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 private:
     PdfViewer* pdf;
-//    ImageViewer* image;
 public:
     explicit MainWindow(QWidget *parent = 0);
     

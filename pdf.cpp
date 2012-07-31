@@ -1,47 +1,95 @@
 #include "pdf.h"
-#include <QString>
-#include <QImage>
+#include "pdfviewer.h"
+#include "auxfunctions.h"
 #include <QDebug>
-#include <QSizePolicy>
-#include <QVBoxLayout>
-#include <QLabel>
 #include <QPixmap>
+#include <QLabel>
+#include <QImage>
+#include <QSize>
 
 Pdf::Pdf(QWidget *parent) :
     QWidget(parent)
 {
-    document = 0;
+    m_document = 0;
     layout = new QVBoxLayout(this);
     setLayout(layout);
 }
 
-void Pdf::open(const QString& _filename)
+// ********************************************************************
+void Pdf::renderPage(int _nPage)
 {
-    filename = _filename;
+    PdfViewer* pv = dynamic_cast<PdfViewer*> (parent());
+    float sf = pv->getScaleFactor();
+//    qDebug() <<"pdx: " <<pv->physicalDpiX();
 
-    document = Poppler::Document::load(filename);
-    if(!document || document->isLocked())   {
-        qDebug("Error: No se pudo abrir el pdf indicado.");
-        delete document;
+    if(!m_document) {
+        qDebug("No puede renderizarse la página ya que no se ha abierto ningún archivo");
         return;
+    }
+    QImage image = m_document->page(_nPage)->renderToImage((pv->physicalDpiX() * 0.965) * sf, pv->physicalDpiY() * sf);
+    m_pdf[_nPage]->setPixmap(QPixmap::fromImage(image));
+    m_pdf[_nPage]->setAlignment(Qt::AlignCenter);
+    m_pdf[_nPage]->resize(pv->size());
+}
+
+// ********************************************************************
+Poppler::Document* Pdf::getDocument() const
+{
+    return m_document;
+}
+
+// ********************************************************************
+bool Pdf::open(const QString& _filename)
+{
+    m_document = Poppler::Document::load(_filename);
+
+    if(m_document == 0) {
+        qDebug() <<tr("No se ha podido cargar el archivo: ") <<tail(_filename);
+        return false;
+    }
+
+    m_pdf.resize(m_document->numPages());
+    for(int i = 0;i < m_document->numPages(); ++i)
+        m_pdf[i] = new QLabel(this);
+
+    return true;
+}
+
+// ********************************************************************
+void Pdf::load()
+{
+    for(int i = 0; i < m_document->numPages(); ++i) {
+        renderPage(i);
+        layout->addWidget(m_pdf[i]);
     }
 }
 
-void Pdf::load()
+// ********************************************************************
+void Pdf::setCurrentPage(int _nPage)
 {
-    QImage image;
-    Poppler::Page* pdfPage;
+    m_currentPage = _nPage;
+}
+// ********************************************************************
+void Pdf::scalePdf(float _zoom)
+{
+    QSize currentSize = m_pdf[0]->size();
+    for(int i = 0;i < m_document->numPages(); ++i)
+        m_pdf[i]->resize(_zoom * currentSize);
+}
 
-    for(int nPage = 0;nPage < document->numPages();++nPage) {
-        pdfPage = document->page(nPage);
-        image = pdfPage->renderToImage();
-        if(image.isNull())  {
-            qDebug("Error: No se puede renderizar la página.");
-            return;
-        }
-        images.push_back(new QLabel());
-        images[nPage]->setPixmap(QPixmap::fromImage(image));
-        layout->addWidget(images[nPage]);
-    }
-    delete pdfPage;
+// ********************************************************************
+int Pdf::getCurrentPage()
+{
+    return m_currentPage;
+}
+
+int Pdf::numPages()
+{
+    return m_pdf.size();
+}
+
+// ********************************************************************
+QLabel* Pdf::getPage(int _nPage) const
+{
+    return m_pdf[_nPage];
 }

@@ -1,7 +1,9 @@
 #include "mainwindow.h"
 #include <QTextCodec>
 #include <QScrollArea>
+#include <pdf.h>
 #include <QDebug>
+#include <poppler/qt4/poppler-qt4.h>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -11,9 +13,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QTextCodec::setCodecForTr(linuxCodec);
     QTextCodec::setCodecForCStrings(linuxCodec);
     QTextCodec::setCodecForLocale(linuxCodec);
-    resize(800, 500); // <-- a modificar en el futuro para permitir opciones
+    resize(1000, 500); // <-- a modificar en el futuro para permitir opciones
 
     pdf = new PdfViewer(this);
-    pdf->load(tr("/home/jjdelasheras/Descargas/bash.pdf"));
+    pdf->open("/home/jjdelasheras/Descargas/bash.pdf");
     setCentralWidget(pdf);
 }
