@@ -27,11 +27,12 @@ public:
     explicit Pdf(QWidget *parent = 0);
     Poppler::Document* getDocument() const;
     QLabel* getPage(int _nPage) const;
+    QSize size();
     bool open(const QString& _filename);
     void load();
     void setCurrentPage(int _nPage);
-    void scalePdf(float _zoom);
-    void fitWidth();
+    void scalePdf(QSize _newSize);
+    void fitWidth(int _nPage);
     int getCurrentPage();
     int numPages();
 

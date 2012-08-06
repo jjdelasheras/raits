@@ -21,15 +21,15 @@ void Pdf::renderPage(int _nPage)
 {
     PdfViewer* pv = dynamic_cast<PdfViewer*> (parent());
     float sf = pv->getScaleFactor();
-//    qDebug() <<"pdx: " <<pv->physicalDpiX();
 
     if(!m_document) {
         qDebug("No puede renderizarse la página ya que no se ha abierto ningún archivo");
         return;
     }
-    QImage image = m_document->page(_nPage)->renderToImage(pv->physicalDpiX() * sf, pv->physicalDpiY() * sf);
+    QImage image = m_document->page(_nPage)->renderToImage(physicalDpiX(), physicalDpiY());
 
     m_pdf[_nPage]->setPixmap(QPixmap::fromImage(image));
+    m_pdf[_nPage]->setScaledContents(true);
     m_pdf[_nPage]->setAlignment(Qt::AlignCenter);
 }
 
@@ -37,6 +37,12 @@ void Pdf::renderPage(int _nPage)
 Poppler::Document* Pdf::getDocument() const
 {
     return m_document;
+}
+
+// ********************************************************************
+QSize Pdf::size()
+{
+    return m_pdf[0]->pixmap()->size();
 }
 
 // ********************************************************************
@@ -62,8 +68,7 @@ void Pdf::load()
 {
     for(int i = 0; i < m_document->numPages(); ++i) {
         renderPage(i);
-        m_pdf[i]->resize(m_parentSize);
-        m_pdf[i]->setScaledContents(true);
+  //      m_pdf[i]->setScaledContents(true);
         m_layout->addWidget(m_pdf[i]);
     }
 }
@@ -74,11 +79,16 @@ void Pdf::setCurrentPage(int _nPage)
     m_currentPage = _nPage;
 }
 // ********************************************************************
-void Pdf::scalePdf(float _zoom)
-{
-    QSize currentSize = m_pdf[0]->size();
+void Pdf::scalePdf(QSize _newSize)
+{    
     for(int i = 0;i < m_document->numPages(); ++i)
-        m_pdf[i]->resize(_zoom * currentSize);
+        m_pdf[i]->setPixmap(m_pdf[i]->pixmap()->scaled(_newSize) );
+}
+
+// ********************************************************************
+void Pdf::fitWidth(int _nPage)
+{
+    m_pdf[_nPage]->setScaledContents(true);
 }
 
 // ********************************************************************
@@ -87,6 +97,7 @@ int Pdf::getCurrentPage()
     return m_currentPage;
 }
 
+// ********************************************************************
 int Pdf::numPages()
 {
     return m_pdf.size();

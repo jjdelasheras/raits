@@ -6,6 +6,7 @@
 class Pdf;
 class QString;
 class QScrollBar;
+class QSize;
 
 class PdfViewer : public QScrollArea
 {
@@ -13,6 +14,7 @@ class PdfViewer : public QScrollArea
 private:
     Pdf* m_pdf;
     QString m_filename;
+    QSize m_originalSize;
     float m_scaleFactor;
     int m_currentPage;
     int m_numPages;
