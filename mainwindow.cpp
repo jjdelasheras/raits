@@ -18,4 +18,6 @@ MainWindow::MainWindow(QWidget *parent) :
     pdf = new PdfViewer(this);
     pdf->open("/home/jjdelasheras/Descargas/bash.pdf");
     setCentralWidget(pdf);
+    pdf->fitPageWidth();
+
 }

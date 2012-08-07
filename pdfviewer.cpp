@@ -7,19 +7,13 @@
 
 
 PdfViewer::PdfViewer(QWidget *parent) :
-    QScrollArea(parent)
+    QGraphicsView(parent)
 {
     m_pdf = new Pdf(this);
     m_scaleFactor = 1.0;
-    resize(parent->size());
-    setWidgetResizable(true);
     setAlignment(Qt::AlignCenter);
-}
-
-void PdfViewer::adjustScrollBar(QScrollBar *_scrollBar, float _factor)
-{
-    _scrollBar->setValue(int(_factor * _scrollBar->value()
-                            + ((_factor - 1) * _scrollBar->pageStep()/2)));
+    setBackgroundBrush(Qt::lightGray);
+    setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform | QPainter::HighQualityAntialiasing);
 }
 
 bool PdfViewer::open(const QString& _filename)
@@ -30,10 +24,10 @@ bool PdfViewer::open(const QString& _filename)
         return false;
     }
     m_pdf->load();
+
     m_numPages = m_pdf->numPages();
-    m_originalSize = m_pdf->size();
     m_currentPage = 0;
-    setWidget(m_pdf);
+    setScene(m_pdf);
 
     return true;
 }
@@ -95,19 +89,21 @@ void PdfViewer::zoomOut()
 
 void PdfViewer::scalePdf(float _factor)
 {
-    float factorToScrollBar = _factor / m_scaleFactor;
-    Q_ASSERT(m_pdf != 0);
-        m_scaleFactor = _factor;
-        m_pdf->scalePdf(m_scaleFactor * m_originalSize);
-        adjustScrollBar(horizontalScrollBar(), factorToScrollBar);
-        adjustScrollBar(verticalScrollBar(), factorToScrollBar);
-        // Falta codigo para activar y desactivar los menus segun llegue o no al zoom maximo - minimo
+    float zoom = _factor / m_scaleFactor;
+    scale(zoom, zoom);
 }
 
 void PdfViewer::fitPageWidth()
 {
-    for(int i = 0; i < m_pdf->numPages(); ++i)
-        m_pdf->fitWidth(i);
+    // Si hay un bug al usar esta función después de usar algún zoom
+    // es debido a que no se tiene en cuenta dicho zoom y se redimensiona
+    // como si m_scaleFactor fuera 1.0
+    qDebug() <<m_pdf->size();
+    float width = dynamic_cast<QWidget*>(parent())->geometry().width();
+
+    float fact = (width - (width*0.0435)) / m_pdf->size().width();
+    qDebug() <<fact;
+    scale(fact, fact);
 }
 
 void PdfViewer::setCurrentPage(int _nPage)

@@ -6,31 +6,34 @@
 #include <QLabel>
 #include <QImage>
 #include <QSize>
+#include <QPainter>
+#include <QGraphicsProxyWidget>
 
-Pdf::Pdf(QWidget *parent) :
-    QWidget(parent)
+Pdf::Pdf(QGraphicsView *parent) :
+    QGraphicsScene(parent)
 {
+    setBackgroundBrush(Qt::gray);
+
     m_document = 0;
-    m_layout = new QVBoxLayout(this);
-    m_parentSize = parent->size();
-    setLayout(m_layout);
+    m_layout = new QGraphicsLinearLayout(Qt::Vertical);
+    m_widget = new QGraphicsWidget;
+    m_widget->setLayout(m_layout);
+    addItem(m_widget);
 }
 
 // ********************************************************************
 void Pdf::renderPage(int _nPage)
 {
-    PdfViewer* pv = dynamic_cast<PdfViewer*> (parent());
-    float sf = pv->getScaleFactor();
-
     if(!m_document) {
         qDebug("No puede renderizarse la página ya que no se ha abierto ningún archivo");
         return;
     }
-    QImage image = m_document->page(_nPage)->renderToImage(physicalDpiX(), physicalDpiY());
+    QImage image = m_document->page(_nPage)->renderToImage();
 
+    m_pdf[_nPage]->setFixedSize(m_document->page(_nPage)->pageSize());
+    m_pdf[_nPage]->setStyleSheet("Page { background-color : white}");
     m_pdf[_nPage]->setPixmap(QPixmap::fromImage(image));
     m_pdf[_nPage]->setScaledContents(true);
-    m_pdf[_nPage]->setAlignment(Qt::AlignCenter);
 }
 
 // ********************************************************************
@@ -40,15 +43,22 @@ Poppler::Document* Pdf::getDocument() const
 }
 
 // ********************************************************************
+QGraphicsWidget* Pdf::widget() const
+{
+    return m_widget;
+}
+
+// ********************************************************************
 QSize Pdf::size()
 {
-    return m_pdf[0]->pixmap()->size();
+    m_pdf[0]->pixmap()->size();
 }
 
 // ********************************************************************
 bool Pdf::open(const QString& _filename)
 {
     m_document = Poppler::Document::load(_filename);
+   // m_document->setRenderHint(Poppler::Document::Antialiasing);
     m_document->setRenderHint(Poppler::Document::TextAntialiasing);
 
     if(m_document == 0) {
@@ -58,7 +68,7 @@ bool Pdf::open(const QString& _filename)
 
     m_pdf.resize(m_document->numPages());
     for(int i = 0;i < m_document->numPages(); ++i)
-        m_pdf[i] = new QLabel(this);
+        m_pdf[i] = new QLabel;
 
     return true;
 }
@@ -68,8 +78,10 @@ void Pdf::load()
 {
     for(int i = 0; i < m_document->numPages(); ++i) {
         renderPage(i);
-  //      m_pdf[i]->setScaledContents(true);
-        m_layout->addWidget(m_pdf[i]);
+        //      m_pdf[i]->setScaledContents(true);
+        QGraphicsProxyWidget* proxy = addWidget(m_pdf[i]);
+        m_layout->addItem(proxy);
+
     }
 }
 
@@ -81,8 +93,9 @@ void Pdf::setCurrentPage(int _nPage)
 // ********************************************************************
 void Pdf::scalePdf(QSize _newSize)
 {    
-    for(int i = 0;i < m_document->numPages(); ++i)
+    for(int i = 0;i < m_document->numPages(); ++i)  {
         m_pdf[i]->setPixmap(m_pdf[i]->pixmap()->scaled(_newSize) );
+    }
 }
 
 // ********************************************************************

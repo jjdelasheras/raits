@@ -1,14 +1,14 @@
 #ifndef PDFVIEWER_H
 #define PDFVIEWER_H
 
-#include <QScrollArea>
+#include <QGraphicsView>
 
 class Pdf;
 class QString;
 class QScrollBar;
 class QSize;
 
-class PdfViewer : public QScrollArea
+class PdfViewer : public QGraphicsView
 {
     Q_OBJECT
 private:
